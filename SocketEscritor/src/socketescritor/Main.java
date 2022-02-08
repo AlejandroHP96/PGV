@@ -10,65 +10,54 @@ import java.io.*;
 
 /**
  *
- * @author Usuario
+ * @author usuario
  */
 public class Main {
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ServerSocket conexion = null; // Socket para aceptar conexiones
-        Socket canal = null; // Socket para establecer canal de comunicación
-        PrintWriter streamSalida = null;
+        // TODO code application logic here
+        Socket canal = null; // Socket para establecer el canal de conexión con el escritor
+        BufferedReader entrada = null; // Para el stream de lectura
+        String valorEntrada = null; // Valores que iremos leyendo del canal
         try {
-            conexion = new ServerSocket(12345);
-            // Solicitamos al sistema operativo que abra un puerto de escucha
-            // de conexiones. El número del puerto es el 12345
-        } catch (IOException ex) {
-            System.err.println("No se ha podido abrir el puerto de escucha.");
+            canal = new Socket("localhost", 12345);
+            // Pedimos establecer una conexión en el equipo local con el puerto 12345
+            // donde debe estar escuchando el proceso escritor
+        } catch (Exception ex) {
+            System.err.println("No se ha podido establecer conexión.");
             System.err.println(ex.toString());
         }
-        if (conexion != null) // Si hemos podido abrir el puerto
+        if (canal != null) // Si hemos podido establecer la conexión. Tenemos
+                           // un canal de comunicación
             try {
-                System.out.println("Proceso escritor, esperando " + "la conexión del proceso lector....");
-                canal = conexion.accept();
-                // Esperamos hasta que se produzca una conexión al puerto
-                // El método ServerSocket.accept(); bloquea (hace dormir)
-                // el proceso hasta que se produce una conexión
-                streamSalida = new PrintWriter(canal.getOutputStream());
-                // Creamos un objeto PrintWriter a partir del Stream de salida
-                // del socket o canal de comunicación
-                // El objeto PrintWriter, nos permitirá utilizar los métodos
-                // print y write para mandar datos al proceso que está
-                // escuchando al otro lado del canal.
-                System.out.println("Conexión establecida, mandando datos " + "al proceso lector....");
-                for (int i = 0; i < 10; i++) {
-                    streamSalida.println(i); // Mandamos del 0 al 9
-                    streamSalida.flush(); // Forzamos que mande cada número
+                entrada = new BufferedReader(new InputStreamReader(canal.getInputStream()));
+                // Obtemenos el objeto que representa el strean de entrada en el canal
+                // Lector con buffer, para no perder ningún dato
+                while ((valorEntrada = entrada.readLine()) != null) {
+                    // Mientras que haya datos que leer
+                    System.out.println(valorEntrada);
+                    System.out.println("**");
                 }
-                System.out.println("Comunicación finalizada.");
             } catch (Exception ex) {
-                System.err.println(
-                        "No se ha podido establecer conexión, " + "o no ha ocurrido un fallo al escribir en el canal.");
-                System.err.print(ex.toString());
+                System.err.println("No se ha podido establecer conexión.");
+                System.err.println(ex.toString());
             } finally {
-                // Nos aseguramos de que se cierren los recursos
-                // que estamos utilizando
-                if (streamSalida != null)// PrintWriter
-                    streamSalida.close(); // su cierre no genera excepciones
-                if (canal != null) // Socket
+                // Nos aseguramos de que se cierran los recursos que estamos utilizando
+                if (entrada != null)
+                    try {
+                        entrada.close();
+                    } catch (IOException ex) {
+                        System.err.println("Se ha producido un error al cerrar el InputStreamReader.");
+                        System.err.println(ex.toString());
+                    }
+                if (canal != null)
                     try {
                         canal.close();
                     } catch (IOException ex) {
-                        System.err.println("Error al cerrar el socket.");
-                        System.err.print(ex.toString());
-                    }
-                if (conexion != null) // ServerSocket
-                    try {
-                        conexion.close();
-                    } catch (IOException ex) {
-                        System.err.println("Error al cerrar ServerSocket.");
-                        System.err.print(ex.toString());
+                        System.err.println("Se ha producido un error al cerrar el Socket.");
+                        System.err.println(ex.toString());
                     }
             }
     }
