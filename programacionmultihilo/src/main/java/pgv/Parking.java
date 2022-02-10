@@ -3,7 +3,7 @@ package pgv;
 import java.util.ArrayList;
 
 public class Parking {
-    private static int PLAZAS = 6;
+    private static int PLAZAS = 5;
     private ArrayList<Integer> huecos = new ArrayList<Integer>();
 
     public Parking() {

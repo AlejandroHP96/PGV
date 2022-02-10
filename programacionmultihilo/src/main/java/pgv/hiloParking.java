@@ -16,27 +16,30 @@ public class hiloParking extends Thread {
 
     @Override
     public void run() {
-        try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        parking.cocheEntra(numero);
-        System.out.println("Entra coche parking");
-        try {
-            sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Sale coche parking");
+        while (true) {
 
-        try {
-            sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                sem.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            parking.cocheEntra(numero);
+            System.out.println("Entra coche parking");
+            try {
+                sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Sale coche parking");
+            sem.release();
+            Thread.yield();
+
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            parking.cocheSale(numero);
         }
-        parking.cocheSale(numero);
-        sem.release();
-        Thread.yield();
     }
 }
